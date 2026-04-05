@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TR YARIŞI - Gerçek Zamanlı Yarışma Oyunu</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #ffffff 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: #8b5cf6;
+            color: #ffffff;
+        }
+
+        .btn-primary:disabled {
+            background: #4c1d95;
+            color: #a78bfa;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-cancel {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #8b5cf6;
+        }
+
+        .button-group {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .room-code {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 8px;
+            text-align: center;
+            margin: 20px 0;
+            color: #8b5cf6;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .players-section {
+            width: 100%;
+            margin: 20px 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .players-section h3 {
+            margin-bottom: 15px;
+            color: #a78bfa;
+            font-size: 1.2rem;
+        }
+
+        .players-list {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .player-item {
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .mode-selection {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .mode-selection h3 {
+            margin-bottom: 15px;
+            color: #a78bfa;
+            font-size: 1.2rem;
+        }
+
+        .mode-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .mode-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-card:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .mode-card.selected {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .mode-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .mode-card h4 {
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .mode-card p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: white;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+
+        .notification.success {
+            background: #10b981;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: #8b5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .waiting-text {
+            color: #94a3b8;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        .game-mode-display {
+            font-size: 1.5rem;
+            color: #8b5cf6;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="main-title">TR YARIŞI</h1>
+
+        <div id="mainScreen" class="screen active">
+            <div class="card">
+                <h2 style="text-align: center; margin-bottom: 20px;">Hoş Geldiniz</h2>
+                <input type="text" id="playerNameInput" placeholder="Oyuncu adınızı girin" maxlength="20">
+                <div class="button-group">
+                    <button id="createRoomBtn" class="btn btn-primary">ODA KUR</button>
+                    <button id="joinRoomBtn" class="btn btn-secondary">ODAYA KATIL</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="lobbyScreen" class="screen">
+            <div class="card">
+                <h2 style="text-align: center;">Oda Kodu</h2>
+                <div class="room-code" id="roomCodeDisplay">----</div>
+
+                <div class="players-section">
+                    <h3>Oyuncular</h3>
+                    <div id="lobbyPlayersList" class="players-list"></div>
+                </div>
+
+                <div class="mode-selection">
+                    <h3>Oyun Modunu Seçin</h3>
+                    <div class="mode-cards">
+                        <div class="mode-card" data-mode="unlu-anlat">
+                            <div class="mode-icon">🎭</div>
+                            <h4>Ünlü Anlat</h4>
+                            <p>Ünlüleri anlatarak tahmin ettir</p>
+                        </div>
+                        <div class="mode-card" data-mode="bilgi-yarismasi">
+                            <div class="mode-icon">🧠</div>
+                            <h4>Bilgi Yarışması</h4>
+                            <p>Genel kültür soruları</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="startGameBtn" class="btn btn-primary" disabled>OYUNU BAŞLAT</button>
+                    <button id="cancelLobbyBtn" class="btn btn-cancel">İPTAL ET</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="joinScreen" class="screen">
+            <div class="card">
+                <h2 style="text-align: center; margin-bottom: 20px;">Odaya Katıl</h2>
+                <input type="text" id="roomCodeInput" placeholder="4 haneli oda kodunu girin" maxlength="4" style="text-transform: uppercase; text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
+                <div class="button-group">
+                    <button id="joinSubmitBtn" class="btn btn-primary">KATIL</button>
+                    <button id="cancelJoinBtn" class="btn btn-cancel">GERİ DÖN</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="waitingScreen" class="screen">
+            <div class="card" style="text-align: center;">
+                <h2>Oyunun Başlaması Bekleniyor...</h2>
+                <div class="loading-spinner"></div>
+
+                <div class="players-section" style="text-align: left;">
+                    <h3>Odadaki Oyuncular</h3>
+                    <div id="waitingPlayersList" class="players-list"></div>
+                </div>
+
+                <p class="waiting-text">Oda sahibi oyunu başlatacak</p>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="screen">
+            <div class="card" style="text-align: center;">
+                <h2>Oyun Başladı!</h2>
+                <div id="gameMode" class="game-mode-display"></div>
+                <div id="gameContent" class="game-content">
+                    <p>Oyun modu: <span id="selectedMode" style="font-weight: bold; color: #a78bfa;"></span></p>
+                    <p style="margin-top: 20px; font-size: 1.2rem;">Oyun yakında başlayacak...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
